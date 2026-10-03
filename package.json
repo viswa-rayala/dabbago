@@ -1,0 +1,26 @@
+{
+  "name": "dabbago-lunch-box-delivery",
+  "version": "1.0.0",
+  "description": "DabbaGo - Home-Cooked Lunch Box Delivery App for School Students and Office Professionals",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "lunch-box",
+    "tiffin-delivery",
+    "pwa",
+    "vite",
+    "vanilla-js",
+    "live-tracking",
+    "otp-verification"
+  ],
+  "author": "Viswa Tej Rayala",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^8.3.2"
+  }
+}

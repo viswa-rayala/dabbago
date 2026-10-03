@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DabbaGo - Home-Cooked Lunch Box Delivery for School & Office</title>
+  <meta name="description" content="Fresh home-cooked hot lunchbox pickup and timely delivery to school students and office professionals.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Progressive Web App (PWA) Meta & Manifest -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#165b46">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DabbaGo">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- Presentation Frame Wrapper (Allows sleek mobile device framing with responsive full-view toggle) -->
+  <div class="presentation-wrapper" id="presentationWrapper">
+    <!-- Top Showcase Controls Bar for demo reviewers -->
+    <header class="showcase-bar">
+      <div class="showcase-brand">
+        <span class="brand-logo-icon">🍱</span>
+        <div class="brand-text">
+          <span class="brand-name">DabbaGo</span>
+          <span class="brand-tagline">Home-to-School & Office Lunch Concierge</span>
+        </div>
+      </div>
+      
+      <div class="showcase-actions">
+        <div class="recipient-quick-switch" title="Switch between School Student & Office Professional profile">
+          <span class="switch-label">Delivering for:</span>
+          <div class="segmented-control">
+            <button class="segment-btn active" id="btnSwitchAarav" data-person="aarav">
+              <span class="seg-icon">🎒</span> Aarav (School)
+            </button>
+            <button class="segment-btn" id="btnSwitchVikram" data-person="vikram">
+              <span class="seg-icon">💼</span> Vikram (Office)
+            </button>
+          </div>
+        </div>
+
+        <button class="control-btn pwa-badge-btn" id="btnTopInstall" title="Install Progressive Web App">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Install PWA</span>
+        </button>
+
+        <button class="control-btn auth-badge-btn" id="btnOpenAuthModal" title="Open Login or Signup Screen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="topAuthBtnLabel">Sign In / Register</span>
+        </button>
+
+        <div class="device-toggle-group">
+          <button class="control-btn active" id="btnDeviceMobile" title="Mobile Device View">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>Mobile</span>
+          </button>
+          <button class="control-btn" id="btnDeviceWide" title="Desktop / Tablet Expanded View">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Expanded</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="device-container mobile-mode" id="deviceContainer">
+      <div class="smartphone-frame">
+        <!-- Status Bar -->
+        <div class="mobile-status-bar">
+          <span class="status-time" id="statusClock">11:42</span>
+          <div class="status-dynamic-island">
+            <div class="island-indicator"></div>
+          </div>
+          <div class="status-icons">
+            <svg class="status-icon" width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+              <rect x="0" y="8" width="2.5" height="4" rx="0.5"/>
+              <rect x="4" y="6" width="2.5" height="6" rx="0.5"/>
+              <rect x="8" y="3" width="2.5" height="9" rx="0.5"/>
+              <rect x="12" y="0" width="2.5" height="12" rx="0.5"/>
+            </svg>
+            <svg class="status-icon" width="15" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3C7.5 3 3.5 4.8 0.6 7.8L12 21.4 23.4 7.8C20.5 4.8 16.5 3 12 3z"/>
+            </svg>
+            <div class="battery-icon">
+              <div class="battery-level"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUTH VIEW (Sign In / Register / OTP Flow) -->
+        <div class="auth-view" id="authView">
+          <!-- Auth Top Bar -->
+          <div class="auth-top-bar">
+            <button class="auth-back-btn" id="btnAuthBack" aria-label="Go back" style="visibility: hidden;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="auth-brand-badge">
+              <span class="auth-brand-icon">🍱</span>
+              <span class="auth-brand-name">DabbaGo</span>
+            </div>
+            <button class="auth-close-btn" id="btnAuthClose" title="Close / Continue to demo" aria-label="Close">✕</button>
+          </div>
+
+          <div class="auth-content-container">
+            <!-- Top Segmented Switcher for Login / Signup -->
+            <div class="auth-nav-tabs">
+              <button type="button" class="auth-nav-tab active" id="tabSwitchLogin">Log In</button>
+              <button type="button" class="auth-nav-tab" id="tabSwitchSignup">Create Account</button>
+            </div>
+
+            <!-- 1. LOGIN PANE (With 4 OTP boxes on the same page) -->
+            <div class="auth-step-pane active" id="paneLogin">
+              <div class="auth-hero-banner">
+                <span class="auth-eyebrow">HOT TIFFIN CONCIERGE</span>
+                <h2 class="auth-title">Welcome Back</h2>
+                <p class="auth-desc">Enter your mobile number and 4-digit OTP to sign in.</p>
+              </div>
+
+              <form id="formLogin" class="auth-form">
+                <div class="form-group">
+                  <label for="loginPhone">Mobile Number</label>
+                  <div class="phone-input-wrap">
+                    <span class="phone-prefix">🇮🇳 +91</span>
+                    <input type="tel" id="loginPhone" placeholder="Enter 10-digit mobile" maxlength="10" inputmode="numeric" required value="9845028190">
+                  </div>
+                </div>
+
+                <!-- 4 OTP BOXES ON THE SAME PAGE (Edge-to-edge full width) -->
+                <div class="form-group">
+                  <div class="otp-label-row">
+                    <label for="loginOtp1">Enter 4-Digit OTP</label>
+                    <div class="otp-timer-status" id="loginTimerStatus">
+                      <span class="otp-timer-count" id="loginTimerMsg">Resend in <strong id="loginTimerSec">30</strong>s</span>
+                      <button type="button" class="resend-inline-btn" id="btnResendLoginOtp" style="display: none;">Resend OTP</button>
+                    </div>
+                  </div>
+
+                  <!-- Quick Demo Autofill Helper Chip -->
+                  <div class="demo-otp-chip" id="btnDemoAutofillLogin" title="Click to auto-fill OTP">
+                    <span class="chip-badge">DEMO OTP</span>
+                    <span>Your code is <strong class="display-otp-code">4829</strong></span>
+                    <span class="tap-pill">Tap to auto-fill</span>
+                  </div>
+
+                  <div class="otp-digits-container" id="loginOtpContainer">
+                    <input type="tel" class="otp-digit-input login-otp" inputmode="numeric" autocomplete="one-time-code" id="loginOtp1" aria-label="Digit 1">
+                    <input type="tel" class="otp-digit-input login-otp" inputmode="numeric" autocomplete="one-time-code" id="loginOtp2" aria-label="Digit 2">
+                    <input type="tel" class="otp-digit-input login-otp" inputmode="numeric" autocomplete="one-time-code" id="loginOtp3" aria-label="Digit 3">
+                    <input type="tel" class="otp-digit-input login-otp" inputmode="numeric" autocomplete="one-time-code" id="loginOtp4" aria-label="Digit 4">
+                  </div>
+                  <div class="otp-meta-row">
+                    <small class="field-hint">Auto-submits on 4th digit • Code: 4829</small>
+                    <span class="otp-live-pill" id="loginTimerPill">⏱ 30s</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="auth-primary-btn" id="btnSubmitLogin">
+                  <span>Verify & Sign In</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </form>
+
+              <div class="auth-switch-prompt">
+                <span>New to DabbaGo?</span>
+                <button type="button" class="auth-switch-link" id="btnGotoSignup">Create Account</button>
+              </div>
+            </div>
+
+            <!-- 2. SIGNUP PANE (With 4 OTP boxes on the same page) -->
+            <div class="auth-step-pane" id="paneSignup">
+              <div class="auth-hero-banner">
+                <span class="auth-eyebrow">QUICK ONBOARDING</span>
+                <h2 class="auth-title">Create Account</h2>
+                <p class="auth-desc">Enter your basic details to set up your home lunch pickup route.</p>
+              </div>
+
+              <form id="formSignup" class="auth-form">
+                <div class="form-group">
+                  <label for="signupName">Full Name</label>
+                  <div class="text-input-wrap">
+                    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="signupName" placeholder="e.g. Priya Sharma" value="Priya Sharma" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="signupPhone">Mobile Number</label>
+                  <div class="phone-input-wrap">
+                    <span class="phone-prefix">🇮🇳 +91</span>
+                    <input type="tel" id="signupPhone" placeholder="Enter 10-digit mobile" maxlength="10" inputmode="numeric" required value="9845028190">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="signupArea">Your Home Area / Locality</label>
+                  <div class="select-input-wrap">
+                    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <select id="signupArea" required>
+                      <option value="Indiranagar" selected>Indiranagar (100ft / CMH Rd)</option>
+                      <option value="Koramangala">Koramangala (Blocks 1 to 8)</option>
+                      <option value="HSR Layout">HSR Layout (Sectors 1 to 7)</option>
+                      <option value="Whitefield">Whitefield / ITPL Area</option>
+                      <option value="Jayanagar">Jayanagar / JP Nagar</option>
+                      <option value="Bellandur">Bellandur / EcoSpace Tech Park</option>
+                      <option value="Electronic City">Electronic City Phase 1 & 2</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Primary Lunch Delivery For</label>
+                  <div class="role-pills-grid">
+                    <label class="role-pill-option active">
+                      <input type="radio" name="signupDeliveryFor" value="school" checked>
+                      <span class="role-pill-text">🎒 School Student</span>
+                    </label>
+                    <label class="role-pill-option">
+                      <input type="radio" name="signupDeliveryFor" value="office">
+                      <span class="role-pill-text">💼 Office Worker</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 4 OTP BOXES ON THE SAME SIGNUP PAGE (Edge-to-edge full width) -->
+                <div class="form-group">
+                  <div class="otp-label-row">
+                    <label for="signupOtp1">Enter 4-Digit OTP</label>
+                    <div class="otp-timer-status" id="signupTimerStatus">
+                      <span class="otp-timer-count" id="signupTimerMsg">Resend in <strong id="signupTimerSec">30</strong>s</span>
+                      <button type="button" class="resend-inline-btn" id="btnResendSignupOtp" style="display: none;">Resend OTP</button>
+                    </div>
+                  </div>
+
+                  <!-- Quick Demo Autofill Helper Chip -->
+                  <div class="demo-otp-chip" id="btnDemoAutofillSignup" title="Click to auto-fill OTP">
+                    <span class="chip-badge">DEMO OTP</span>
+                    <span>Your code is <strong class="display-otp-code">4829</strong></span>
+                    <span class="tap-pill">Tap to auto-fill</span>
+                  </div>
+
+                  <div class="otp-digits-container" id="signupOtpContainer">
+                    <input type="tel" class="otp-digit-input signup-otp" inputmode="numeric" autocomplete="one-time-code" id="signupOtp1" aria-label="Digit 1">
+                    <input type="tel" class="otp-digit-input signup-otp" inputmode="numeric" autocomplete="one-time-code" id="signupOtp2" aria-label="Digit 2">
+                    <input type="tel" class="otp-digit-input signup-otp" inputmode="numeric" autocomplete="one-time-code" id="signupOtp3" aria-label="Digit 3">
+                    <input type="tel" class="otp-digit-input signup-otp" inputmode="numeric" autocomplete="one-time-code" id="signupOtp4" aria-label="Digit 4">
+                  </div>
+                  <div class="otp-meta-row">
+                    <small class="field-hint">Auto-submits on 4th digit • Code: 4829</small>
+                    <span class="otp-live-pill" id="signupTimerPill">⏱ 30s</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="auth-primary-btn" id="btnSubmitSignup">
+                  <span>Verify & Create Account</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </form>
+
+              <div class="auth-switch-prompt">
+                <span>Already have an account?</span>
+                <button type="button" class="auth-switch-link" id="btnGotoLogin">Log In</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Screen Content -->
+        <div class="app-screen" id="appScreen">
+          
+          <!-- TAB 1: HOME (Exact match to the user screenshot) -->
+          <section class="tab-page active-tab" id="tabHome">
+            
+            <!-- PWA In-App Install Banner -->
+            <div class="pwa-install-banner" id="pwaInstallBanner">
+              <div class="install-banner-left">
+                <span class="install-app-icon">🍱</span>
+                <div class="install-text">
+                  <strong>Install DabbaGo App</strong>
+                  <small>Add to home screen for offline & 1-tap live tracking</small>
+                </div>
+              </div>
+              <div class="install-banner-right">
+                <button class="install-btn" id="btnPwaInstall">Install</button>
+                <button class="install-dismiss-btn" id="btnPwaDismiss" aria-label="Dismiss banner">✕</button>
+              </div>
+            </div>
+
+            <!-- Header Section -->
+            <header class="app-header">
+              <div class="greeting-container">
+                <span class="greeting-subtitle">Good morning</span>
+                <h1 class="greeting-title">Hi, Priya</h1>
+              </div>
+              <div class="header-right-actions">
+                <button class="icon-circle-btn" id="btnNotification" aria-label="Notifications" title="Delivery notifications">
+                  <span class="notification-badge"></span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
+                </button>
+              </div>
+            </header>
+
+            <!-- Active Delivery Card (Dark Forest Green Card) -->
+            <article class="active-order-card" id="activeOrderCard" role="region" aria-label="Current Lunch Delivery Status">
+              <div class="order-top-row">
+                <span class="order-for-text" id="orderForText">Today's lunch for Aarav</span>
+                <div class="eta-badge" id="etaBadge" title="Estimated Time of Arrival">
+                  <span class="eta-pulse"></span>
+                  <span class="eta-text" id="etaText">ETA 12:10</span>
+                </div>
+              </div>
+
+              <div class="order-status-headline">
+                <h2 class="status-title" id="statusTitle">On the way</h2>
+              </div>
+
+              <!-- Segmented Progress Bar -->
+              <div class="delivery-progress-block">
+                <div class="progress-track" aria-hidden="true">
+                  <div class="progress-bar-segment completed" id="seg1"></div>
+                  <div class="progress-bar-segment completed" id="seg2"></div>
+                  <div class="progress-bar-segment upcoming" id="seg3"></div>
+                </div>
+                <div class="progress-labels">
+                  <span class="step-label active" id="stepLabel1">Picked up 11:20</span>
+                  <span class="step-label active current" id="stepLabel2">On the way</span>
+                  <span class="step-label muted" id="stepLabel3">Delivered</span>
+                </div>
+              </div>
+
+              <!-- Inset Rider Card -->
+              <div class="rider-inset-card" id="riderCard">
+                <div class="rider-left">
+                  <div class="rider-avatar" id="riderAvatar">R</div>
+                  <div class="rider-info">
+                    <div class="rider-name-row">
+                      <span class="rider-name" id="riderName">Rahul</span>
+                      <svg class="verified-icon" width="14" height="14" viewBox="0 0 24 24" fill="#3cd070" title="Background verified rider">
+                        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
+                      </svg>
+                    </div>
+                    <span class="rider-subtext" id="riderSubtext">Your rider, ID verified</span>
+                  </div>
+                </div>
+                <button class="call-btn" id="btnCallRider" aria-label="Call Rahul">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="call-icon">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  <span>Call</span>
+                </button>
+              </div>
+
+              <!-- Quick Card Footer / Live View trigger -->
+              <div class="card-tap-hint" id="btnOpenLiveMap">
+                <span>📍 Live Route & Delivery Tracking</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </article>
+
+            <!-- Upcoming Deliveries Section -->
+            <section class="upcoming-section" aria-labelledby="upcomingHeading">
+              <div class="section-header-row">
+                <h2 class="section-title" id="upcomingHeading">Upcoming</h2>
+                <button class="link-btn" id="btnSeeAllUpcoming">See all</button>
+              </div>
+
+              <!-- Upcoming Item 1 (Tomorrow, Tue) -->
+              <div class="upcoming-card" id="cardTomorrow">
+                <div class="upcoming-left">
+                  <h3 class="upcoming-day-title">Tomorrow, Tue</h3>
+                  <p class="upcoming-subtext" id="upcomingSubtext1">Pickup 11:15 AM, Green Valley School</p>
+                </div>
+                <div class="upcoming-right">
+                  <button class="skip-btn" id="btnSkipTue" data-day="Tomorrow, Tue" data-school="Green Valley School">
+                    Skip
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upcoming Item 2 (Wed) -->
+              <div class="upcoming-card" id="cardWed">
+                <div class="upcoming-left">
+                  <h3 class="upcoming-day-title">Wed</h3>
+                  <p class="upcoming-subtext" id="upcomingSubtext2">Pickup 11:15 AM, Green Valley School</p>
+                </div>
+                <div class="upcoming-right">
+                  <button class="skip-btn" id="btnSkipWed" data-day="Wed" data-school="Green Valley School">
+                    Skip
+                  </button>
+                </div>
+              </div>
+
+              <!-- Plan Renewal Banner (Warm Peach Card) -->
+              <div class="plan-renew-card" id="cardPlanRenew">
+                <div class="plan-left">
+                  <h3 class="plan-renew-title">Plan renews in 6 days</h3>
+                  <p class="plan-renew-subtext">Monthly, ₹2,499</p>
+                </div>
+                <div class="plan-right">
+                  <button class="renew-btn" id="btnRenewPlan">
+                    Renew
+                  </button>
+                </div>
+              </div>
+
+              <!-- Value Highlights (Dabba Service Benefits) -->
+              <div class="concierge-features-strip">
+                <div class="feature-chip">
+                  <span class="chip-emoji">🍲</span>
+                  <span>Hot by 12:15 PM</span>
+                </div>
+                <div class="feature-chip">
+                  <span class="chip-emoji">🛡️</span>
+                  <span>Spill-Proof Bags</span>
+                </div>
+                <div class="feature-chip">
+                  <span class="chip-emoji">🔁</span>
+                  <span>Return Dabba at 3 PM</span>
+                </div>
+              </div>
+            </section>
+
+          </section>
+
+          <!-- TAB 2: PLANS -->
+          <section class="tab-page" id="tabPlans">
+            <header class="sub-header">
+              <h1 class="sub-title">Your Subscriptions</h1>
+              <p class="sub-subtitle">Manage daily dabba routes and meal schedules</p>
+            </header>
+
+            <div class="plans-list">
+              <div class="plan-detail-card active-plan-border">
+                <div class="plan-card-tag">Active Subscription</div>
+                <div class="plan-card-header">
+                  <div>
+                    <h2 class="plan-name">School Daily Express</h2>
+                    <span class="plan-target">For Aarav • Green Valley School</span>
+                  </div>
+                  <div class="plan-price">₹2,499<span>/mo</span></div>
+                </div>
+                <ul class="plan-bullets">
+                  <li>✨ 22 Days Doorstep Pickup (11:15 AM)</li>
+                  <li>🎒 Handover directly to Class 4-B Lunch Rack</li>
+                  <li>🍱 Empty Dabba Return to your home by 4:00 PM</li>
+                  <li>❄️ Thermal Isothermal Dabba Carrier Included</li>
+                </ul>
+                <div class="plan-actions-row">
+                  <button class="secondary-btn" id="btnPauseCalendar">Pause for Holidays</button>
+                  <button class="primary-pill-btn" id="btnUpgradePlan">Change Plan</button>
+                </div>
+              </div>
+
+              <div class="plan-detail-card">
+                <div class="plan-card-header">
+                  <div>
+                    <h2 class="plan-name">Office Executive Dabba</h2>
+                    <span class="plan-target">For Vikram • Mindspace Cyber Towers</span>
+                  </div>
+                  <div class="plan-price">₹2,799<span>/mo</span></div>
+                </div>
+                <p class="plan-desc">Hot lunch delivered right to the office reception desk or desk delivery before 1:00 PM.</p>
+                <div class="plan-actions-row">
+                  <button class="primary-pill-btn" id="btnAddOfficePlan">+ Activate for Vikram</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 3: HISTORY -->
+          <section class="tab-page" id="tabHistory">
+            <header class="sub-header">
+              <h1 class="sub-title">Delivery History</h1>
+              <p class="sub-subtitle">Past home-to-school & office deliveries</p>
+            </header>
+
+            <div class="history-list">
+              <div class="history-card">
+                <div class="history-status-icon success">✓</div>
+                <div class="history-details">
+                  <div class="history-title-row">
+                    <span class="history-name">Aarav's Lunch Delivered</span>
+                    <span class="history-date">Today, 12:08 PM</span>
+                  </div>
+                  <p class="history-location">Handed to Mr. Thomas (School In-charge)</p>
+                  <div class="history-meta">
+                    <span class="meta-tag">Class 4-B Lunch Rack</span>
+                    <span class="meta-tag">Dabba #GV-402</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="history-card">
+                <div class="history-status-icon success">✓</div>
+                <div class="history-details">
+                  <div class="history-title-row">
+                    <span class="history-name">Aarav's Lunch Delivered</span>
+                    <span class="history-date">Yesterday, 12:05 PM</span>
+                  </div>
+                  <p class="history-location">Green Valley School • On time</p>
+                  <div class="history-meta">
+                    <span class="meta-tag">Empty dabba returned 3:45 PM</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="history-card skipped">
+                <div class="history-status-icon skip">⏸</div>
+                <div class="history-details">
+                  <div class="history-title-row">
+                    <span class="history-name">Delivery Skipped</span>
+                    <span class="history-date">Last Friday, Sep 26</span>
+                  </div>
+                  <p class="history-location">Annual Sports Day • ₹115 Credit Added</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 4: PROFILE -->
+          <section class="tab-page" id="tabProfile">
+            <header class="profile-header">
+              <div class="profile-avatar-large" id="profileUserAvatar">P</div>
+              <div class="profile-meta">
+                <h1 class="profile-name" id="profileUserName">Priya Sharma</h1>
+                <span class="profile-phone" id="profileUserPhone">+91 98450 28190</span>
+                <span class="profile-tag" id="profileUserArea">Indiranagar</span>
+              </div>
+            </header>
+
+            <div class="profile-menu">
+              <div class="profile-item" id="btnManageAddresses">
+                <div class="item-icon">📍</div>
+                <div class="item-text">
+                  <span class="item-title">Pickup & Drop Addresses</span>
+                  <span class="item-sub" id="profileAddressSub">Home: Flat 402, Lotus Greens, Indiranagar</span>
+                </div>
+                <span class="chevron">›</span>
+              </div>
+
+              <div class="profile-item" id="btnDabbaTags">
+                <div class="item-icon">🏷️</div>
+                <div class="item-text">
+                  <span class="item-title">Dabba Bag Tag Numbers</span>
+                  <span class="item-sub">Aarav (#GV-402), Vikram (#TC-108)</span>
+                </div>
+                <span class="chevron">›</span>
+              </div>
+
+              <div class="profile-item" id="btnEmergencyContacts">
+                <div class="item-icon">📞</div>
+                <div class="item-text">
+                  <span class="item-title">School In-charge / Reception Contact</span>
+                  <span class="item-sub">Green Valley Security desk connected</span>
+                </div>
+                <span class="chevron">›</span>
+              </div>
+
+              <div class="profile-item" id="btnPreferences">
+                <div class="item-icon">🔔</div>
+                <div class="item-text">
+                  <span class="item-title">WhatsApp & SMS Notifications</span>
+                  <span class="item-sub">Pickup alerts, ETA updates, delivery photos</span>
+                </div>
+                <span class="chevron">›</span>
+              </div>
+
+              <div class="profile-item logout-item" id="btnLogoutUser">
+                <span class="logout-btn-text">Logout</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Bottom Navigation Bar (Matches screenshot layout) -->
+        <nav class="bottom-nav" aria-label="Bottom Navigation">
+          <button class="nav-item active" data-tab="tabHome" id="navHome">
+            <div class="nav-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <span class="nav-label">Home</span>
+          </button>
+
+          <button class="nav-item" data-tab="tabPlans" id="navPlans">
+            <div class="nav-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <span class="nav-label">Plans</span>
+          </button>
+
+          <button class="nav-item" data-tab="tabHistory" id="navHistory">
+            <div class="nav-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <span class="nav-label">History</span>
+          </button>
+
+          <button class="nav-item" data-tab="tabProfile" id="navProfile">
+            <div class="nav-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+
+        <!-- Home Indicator bar (iOS/Android bar) -->
+        <div class="mobile-home-indicator"></div>
+      </div>
+    </main>
+
+    <!-- Side Panel for Expanded / Desktop View -->
+    <aside class="desktop-side-panel" id="desktopSidePanel">
+      <div class="side-panel-header">
+        <div class="badge-pill">DabbaGo Fleet System</div>
+        <h2>Home-to-School & Office Lunch Network</h2>
+        <p>Connecting loving home kitchens to school classrooms and office desks every afternoon.</p>
+      </div>
+
+      <div class="feature-card-grid">
+        <div class="side-feature-card">
+          <div class="feat-icon">🏫</div>
+          <div class="feat-content">
+            <h4>School Gate Security Verified</h4>
+            <p>Riders carry verified school identity badges. Handover recorded with time-stamped photo at school lunch rack.</p>
+          </div>
+        </div>
+
+        <div class="side-feature-card">
+          <div class="feat-icon">🏢</div>
+          <div class="feat-content">
+            <h4>Office Desk & Hub Delivery</h4>
+            <p>Delivered fresh before the 1:00 PM lunch rush to corporate tech parks and coworking spaces.</p>
+          </div>
+        </div>
+
+        <div class="side-feature-card">
+          <div class="feat-icon">🛡️</div>
+          <div class="feat-content">
+            <h4>Insulated Spill-Proof Bag</h4>
+            <p>Hot rotis, crispy dosas, and warm dal remain fresh and sealed without plastic containers.</p>
+          </div>
+        </div>
+
+        <div class="side-feature-card">
+          <div class="feat-icon">🔄</div>
+          <div class="feat-content">
+            <h4>Evening Dabba Return</h4>
+            <p>Rider collects the washed empty tiffin box at 3:15 PM and delivers it back to your doorstep by 4:30 PM.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Delivery Simulator Box for testing states -->
+      <div class="simulator-box">
+        <div class="sim-header">
+          <span class="sim-badge">Interactive Demo Controls</span>
+          <h4>Simulate Order Stages</h4>
+        </div>
+        <p class="sim-hint">Experience how the real-time status card adapts throughout the day:</p>
+        <div class="sim-btn-group">
+          <button class="sim-btn" id="btnSimScheduled">1. Scheduled (11:15 AM)</button>
+          <button class="sim-btn active" id="btnSimTransit">2. In Transit (Current)</button>
+          <button class="sim-btn" id="btnSimDelivered">3. Delivered (12:08 PM)</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MODALS & DRAWERS -->
+
+  <!-- 1. Live Tracking Modal / Drawer -->
+  <div class="modal-backdrop" id="liveMapModal" role="dialog" aria-modal="true" aria-labelledby="liveTrackingTitle">
+    <div class="modal-sheet">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="modal-sheet-header">
+        <div>
+          <span class="modal-tag">LIVE GPS TRACKING</span>
+          <h2 id="liveTrackingTitle">Aarav's Lunch Tracker</h2>
+        </div>
+        <button class="modal-close-btn" id="btnCloseLiveMap" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <!-- Interactive Simulated Route Map -->
+        <div class="live-map-canvas-wrap">
+          <div class="map-grid-bg"></div>
+          
+          <!-- Route SVG Line with pulsing rider -->
+          <svg class="map-route-svg" viewBox="0 0 340 180">
+            <defs>
+              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#165b46"/>
+                <stop offset="65%" stop-color="#3cd070"/>
+                <stop offset="100%" stop-color="#94a3b8"/>
+              </linearGradient>
+            </defs>
+            <!-- Pathway -->
+            <path d="M 30 140 Q 90 40 170 90 T 310 50" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+            <path d="M 30 140 Q 90 40 170 90 T 310 50" fill="none" stroke="url(#routeGradient)" stroke-width="6" stroke-linecap="round" stroke-dasharray="8,6" class="animated-route-dash"/>
+          </svg>
+
+          <!-- Origin Pin (Home) -->
+          <div class="map-pin origin" style="left: 20px; top: 125px;">
+            <div class="pin-bubble">🏡 Home (Flat 402)</div>
+            <div class="pin-dot"></div>
+          </div>
+
+          <!-- Moving Rider Pin -->
+          <div class="map-pin rider" style="left: 170px; top: 75px;">
+            <div class="rider-pulse-ring"></div>
+            <div class="rider-pin-avatar">🛵</div>
+            <div class="pin-bubble rider-tag">Rahul (2.1 km away)</div>
+          </div>
+
+          <!-- Destination Pin (School / Office) -->
+          <div class="map-pin destination" style="left: 280px; top: 35px;">
+            <div class="pin-bubble">🏫 Green Valley School</div>
+            <div class="pin-dot dest"></div>
+          </div>
+        </div>
+
+        <!-- Live Vital Cards -->
+        <div class="vitals-row">
+          <div class="vital-card">
+            <span class="vital-label">Distance Away</span>
+            <div class="vital-value">🛵 2.1 km</div>
+          </div>
+          <div class="vital-card">
+            <span class="vital-label">School Lunch Bell</span>
+            <div class="vital-value">⏰ 12:20 PM</div>
+          </div>
+          <div class="vital-card">
+            <span class="vital-label">Pickup Time</span>
+            <div class="vital-value">📦 11:20 AM</div>
+          </div>
+        </div>
+
+        <!-- Dabba Security Handover Code -->
+        <div class="dabba-code-banner">
+          <div class="code-left">
+            <span class="code-label">School Handover PIN</span>
+            <span class="code-number">5 8 2 1</span>
+          </div>
+          <div class="code-right">
+            <span class="tag-label">Dabba Tag</span>
+            <span class="tag-badge">#GV-402</span>
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="sheet-actions">
+          <button class="sheet-call-btn" id="btnCallFromMap">
+            📞 Call Rider (Rahul)
+          </button>
+          <button class="sheet-msg-btn" id="btnNotifySchool">
+            🔔 Alert School Gate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Call Rider Modal -->
+  <div class="modal-backdrop" id="callRiderModal" role="dialog" aria-modal="true" aria-labelledby="callModalTitle">
+    <div class="modal-sheet compact">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="modal-sheet-header">
+        <h2 id="callModalTitle">Contact Your Rider</h2>
+        <button class="modal-close-btn" id="btnCloseCallModal" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <div class="rider-call-profile">
+          <div class="rider-call-avatar">R</div>
+          <h3 class="rider-call-name">Rahul</h3>
+          <span class="rider-call-rating">⭐ 4.95 • 1,420+ On-time Deliveries</span>
+          <div class="rider-call-meta">
+            <span>Vehicle: Electric Scooter (KA-03-EB-4921)</span>
+            <span>School Entry Pass: Approved & Active</span>
+          </div>
+        </div>
+
+        <div class="call-options-grid">
+          <a href="tel:+919876543210" class="call-option-btn primary" id="btnMakePhoneCall">
+            <span class="call-opt-icon">📞</span>
+            <div>
+              <strong>Direct Voice Call</strong>
+              <small>Free masked number</small>
+            </div>
+          </a>
+
+          <button class="call-option-btn whatsapp" id="btnWhatsAppMessage">
+            <span class="call-opt-icon">💬</span>
+            <div>
+              <strong>WhatsApp Message</strong>
+              <small>Send quick note or delay update</small>
+            </div>
+          </button>
+        </div>
+
+        <div class="call-disclaimer">
+          🔒 For safety, calls are monitored & recorded for customer support.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Skip Day Confirmation Modal -->
+  <div class="modal-backdrop" id="skipDayModal" role="dialog" aria-modal="true" aria-labelledby="skipModalTitle">
+    <div class="modal-sheet compact">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="modal-sheet-header">
+        <h2 id="skipModalTitle">Skip Lunch Delivery</h2>
+        <button class="modal-close-btn" id="btnCloseSkipModal" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <div class="skip-details-box">
+          <div class="skip-calendar-icon">📅</div>
+          <div>
+            <h3 id="skipModalDayText">Tomorrow, Tue</h3>
+            <p id="skipModalSubtext">Green Valley School Delivery</p>
+          </div>
+        </div>
+
+        <div class="skip-benefit-card">
+          <div class="credit-icon">💰</div>
+          <div class="credit-text">
+            <strong>₹115 Subscription Credit</strong>
+            <p>Automatically refunded & deducted from your next monthly renewal.</p>
+          </div>
+        </div>
+
+        <p class="skip-policy-notice">
+          Skipping must be finalized before 9:30 AM on the delivery morning so riders are not dispatched.
+        </p>
+
+        <div class="modal-btn-row">
+          <button class="secondary-btn" id="btnCancelSkip">Keep Delivery</button>
+          <button class="danger-btn" id="btnConfirmSkip">Confirm Skip</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Plan Renewal Modal -->
+  <div class="modal-backdrop" id="renewModal" role="dialog" aria-modal="true" aria-labelledby="renewModalTitle">
+    <div class="modal-sheet">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="modal-sheet-header">
+        <h2 id="renewModalTitle">Renew DabbaPass</h2>
+        <button class="modal-close-btn" id="btnCloseRenewModal" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <div class="renew-intro">
+          <span class="renew-badge">Expiring in 6 days</span>
+          <h3>Keep Aarav's home lunch uninterrupted</h3>
+          <p>Fresh, piping hot home meals delivered to school right on schedule.</p>
+        </div>
+
+        <div class="renewal-tiers">
+          <label class="tier-card active">
+            <input type="radio" name="renewTier" value="1month" checked>
+            <div class="tier-info">
+              <span class="tier-title">1 Month Pass (22 Days)</span>
+              <span class="tier-desc">₹113/day • Includes dabba return</span>
+            </div>
+            <div class="tier-price">₹2,499</div>
+          </label>
+
+          <label class="tier-card">
+            <input type="radio" name="renewTier" value="3months">
+            <div class="tier-info">
+              <div class="save-tag">SAVE 15%</div>
+              <span class="tier-title">Term Pass (3 Months)</span>
+              <span class="tier-desc">₹96/day • Free insulated bag</span>
+            </div>
+            <div class="tier-price">₹6,399</div>
+          </label>
+        </div>
+
+        <div class="trust-points">
+          <div class="point">✓ Zero plastic policy - your stainless steel tiffin</div>
+          <div class="point">✓ SMS confirmation to parent on school gate handover</div>
+          <div class="point">✓ 100% credit rollover for missed days</div>
+        </div>
+
+        <button class="renew-submit-btn" id="btnSubmitRenewal">
+          Pay & Extend Pass (₹2,499)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PWA Install Guide Modal (For iOS Safari or general browser install) -->
+  <div class="modal-backdrop" id="pwaGuideModal" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle">
+    <div class="modal-sheet compact">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="modal-sheet-header">
+        <h2 id="pwaGuideTitle">Install DabbaGo App</h2>
+        <button class="modal-close-btn" id="btnClosePwaGuide" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <div class="pwa-guide-intro">
+          <div class="pwa-app-icon-preview">
+            <img src="/icon-192.png" alt="DabbaGo App Icon" width="60" height="60" style="border-radius: 14px; box-shadow: 0 4px 12px rgba(22,91,70,0.25);">
+          </div>
+          <h3>Install on your Phone</h3>
+          <p>Get instant lunch delivery tracking directly from your phone's home screen with offline support and zero app-store downloads.</p>
+        </div>
+
+        <div class="pwa-steps-list">
+          <div class="pwa-step-item">
+            <span class="step-num">1</span>
+            <div class="step-text">
+              <strong>On Android (Chrome / Edge / Firefox)</strong>
+              <p>Tap <strong>"Install"</strong> when prompted, or tap browser menu (⋮) and select <strong>"Add to Home screen"</strong>.</p>
+            </div>
+          </div>
+
+          <div class="pwa-step-item">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              <strong>On iPhone / iPad (Safari)</strong>
+              <p>Tap the <strong>Share</strong> button at the bottom of Safari, scroll down, and select <strong>"Add to Home Screen"</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="primary-pill-btn" id="btnTriggerNativeInstall" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 10px;">
+          Install Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- App Logic -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
