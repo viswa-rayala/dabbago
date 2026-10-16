@@ -184,6 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Nav Items
     navItems: document.querySelectorAll('.bottom-nav .nav-item'),
+    adminNav: document.getElementById('navAdmin'),
+    adminPage: document.getElementById('tabAdmin'),
     tabPages: document.querySelectorAll('.tab-page'),
 
     // Header Action
@@ -245,6 +247,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     statusClock: document.getElementById('statusClock')
   };
+
+  const adminPhoneNumber = '6304846350';
+
+  function hasAdminAccess() {
+    const userPhone = String(state.currentUser?.phone || '').replace(/\D/g, '').slice(-10);
+    return userPhone === adminPhoneNumber;
+  }
+
+  function updateAdminNavVisibility() {
+    const canAccessAdmin = hasAdminAccess();
+    if (el.adminNav) el.adminNav.hidden = !canAccessAdmin;
+    if (el.adminPage) el.adminPage.hidden = !canAccessAdmin;
+    if (!canAccessAdmin && state.activeTab === 'tabAdmin') switchTab('tabHome');
+  }
 
   // Clock Update
   function updateClock() {
@@ -530,6 +546,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function switchTab(tabId) {
+    if (tabId === 'tabAdmin' && !hasAdminAccess()) {
+      showToast('Admin access is restricted.');
+      return;
+    }
+
     state.activeTab = tabId;
 
     el.navItems.forEach(nav => {
@@ -1197,6 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     state.currentUser = userToSave;
+    updateAdminNavVisibility();
     try {
       localStorage.setItem('dabbago_user', JSON.stringify(userToSave));
     } catch (error) {}
@@ -1265,6 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     state.currentUser = userToSave;
+    updateAdminNavVisibility();
     try {
       localStorage.setItem('dabbago_user', JSON.stringify(userToSave));
     } catch (error) {}
@@ -1360,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout User
   el.btnLogoutUser?.addEventListener('click', () => {
     state.currentUser = null;
+    updateAdminNavVisibility();
     try {
       localStorage.removeItem('dabbago_user');
     } catch (error) {}
@@ -1370,6 +1394,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial render
   state.currentStage = state.adminConfig.stages.aarav || state.currentStage;
+  updateAdminNavVisibility();
   initializeAdminPanel();
   renderView();
   if (supabase) {
