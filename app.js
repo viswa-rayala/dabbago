@@ -1,15 +1,57 @@
+import { createClient } from '@supabase/supabase-js';
+
 // ==========================================================================
 // DabbaGo - Lunch Box Delivery App Logic
 // Supports live simulation, recipient switching (School vs Office), modals & tabs
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const supabase = supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
+
+  const defaultAdminConfig = {
+    prices: { school: 2499, office: 2799, quarter: 6399 },
+    availability: { rahul: true, suresh: true, meera: true },
+    zones: { Indiranagar: true, Koramangala: true, 'HSR Layout': true, Whitefield: true, Jayanagar: true, Bellandur: true, 'Electronic City': true },
+    assignments: { aarav: 'rahul', vikram: 'suresh', ananya: 'rahul' },
+    stages: { aarav: 'transit', vikram: 'transit', ananya: 'scheduled' },
+    acceptingOrders: true
+  };
+
+  function loadAdminConfig() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('dabbago_admin') || '{}');
+      return {
+        ...defaultAdminConfig,
+        ...saved,
+        prices: { ...defaultAdminConfig.prices, ...saved.prices },
+        availability: { ...defaultAdminConfig.availability, ...saved.availability },
+        zones: { ...defaultAdminConfig.zones, ...saved.zones },
+        assignments: { ...defaultAdminConfig.assignments, ...saved.assignments },
+        stages: { ...defaultAdminConfig.stages, ...saved.stages }
+      };
+    } catch (error) {
+      return {
+        ...defaultAdminConfig,
+        prices: { ...defaultAdminConfig.prices },
+        availability: { ...defaultAdminConfig.availability },
+        zones: { ...defaultAdminConfig.zones },
+        assignments: { ...defaultAdminConfig.assignments },
+        stages: { ...defaultAdminConfig.stages }
+      };
+    }
+  }
+
   // State store
   const state = {
     currentRecipient: 'aarav', // 'aarav' (School) or 'vikram' (Office)
     currentStage: 'transit', // 'scheduled', 'transit', 'delivered'
     activeTab: 'tabHome',
     skippedDays: new Set(),
+    adminConfig: loadAdminConfig(),
     currentUser: JSON.parse(localStorage.getItem('dabbago_user')) || {
       name: 'Priya Sharma',
       phone: '9845028190',
@@ -19,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeOtp: '4829',
     otpCountdownTimer: null,
     pendingAuthData: null,
+    otpRequested: { login: false, signup: false },
     profiles: {
       aarav: {
         name: 'Aarav',
@@ -290,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Recipient Switcher Event Handlers
   el.btnSwitchAarav.addEventListener('click', () => {
     state.currentRecipient = 'aarav';
+    state.currentStage = state.adminConfig.stages.aarav || state.currentStage;
     el.btnSwitchAarav.classList.add('active');
     el.btnSwitchVikram.classList.remove('active');
     renderView();
@@ -298,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   el.btnSwitchVikram.addEventListener('click', () => {
     state.currentRecipient = 'vikram';
+    state.currentStage = state.adminConfig.stages.vikram || state.currentStage;
     el.btnSwitchVikram.classList.add('active');
     el.btnSwitchAarav.classList.remove('active');
     renderView();
@@ -462,11 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('active');
       const radio = card.querySelector('input');
       radio.checked = true;
-      if (radio.value === '1month') {
-        el.btnSubmitRenewal.textContent = 'Pay & Extend Pass (₹2,499)';
-      } else {
-        el.btnSubmitRenewal.textContent = 'Pay & Extend Pass (₹6,399)';
-      }
+      const price = radio.value === '1month' ? state.adminConfig.prices.school : state.adminConfig.prices.quarter;
+      el.btnSubmitRenewal.textContent = `Pay & Extend Pass (₹${formatAdminPrice(price)})`;
     });
   });
 
@@ -505,6 +547,222 @@ document.addEventListener('DOMContentLoaded', () => {
         page.classList.remove('active-tab');
       }
     });
+  }
+
+  function persistAdminConfig() {
+    try {
+      localStorage.setItem('dabbago_admin', JSON.stringify(state.adminConfig));
+    } catch (error) {}
+  }
+
+  const adminRiders = {
+    rahul: { name: 'Rahul', initials: 'R', rating: '⭐ 4.95 • 1,420+ Deliveries', vehicle: 'Electric Scooter (KA-03-EB-4921)', pass: 'Green Valley School ID: Active' },
+    suresh: { name: 'Suresh Patel', initials: 'SP', rating: '⭐ 4.98 • 2,100+ Deliveries', vehicle: 'Ather 450X (KA-01-MJ-8821)', pass: 'Tech Park Express Badge: Active' },
+    meera: { name: 'Meera Das', initials: 'MD', rating: '⭐ 4.91 • 980+ Deliveries', vehicle: 'Electric Scooter (KA-05-ME-1142)', pass: 'DabbaGo Rider ID: Active' }
+  };
+
+  function applyAdminAssignments() {
+    ['aarav', 'vikram'].forEach(orderId => {
+      const rider = adminRiders[state.adminConfig.assignments[orderId]] || adminRiders.rahul;
+      const profile = state.profiles[orderId];
+      profile.riderName = rider.name;
+      profile.riderInitials = rider.initials;
+      profile.riderRating = rider.rating;
+      profile.riderVehicle = rider.vehicle;
+      profile.riderPass = rider.pass;
+    });
+  }
+
+  function formatAdminPrice(price) {
+    return Number(price).toLocaleString('en-IN');
+  }
+
+  function renderAdminPricing() {
+    const { school, office, quarter } = state.adminConfig.prices;
+    const schoolPrice = formatAdminPrice(school);
+    const officePrice = formatAdminPrice(office);
+    const quarterPrice = formatAdminPrice(quarter);
+    const planPrices = document.querySelectorAll('#tabPlans .plan-price');
+    if (planPrices[0]) planPrices[0].innerHTML = `₹${schoolPrice}<span>/mo</span>`;
+    if (planPrices[1]) planPrices[1].innerHTML = `₹${officePrice}<span>/mo</span>`;
+
+    const renewalText = document.querySelector('.plan-renew-subtext');
+    if (renewalText) renewalText.textContent = `Monthly, ₹${schoolPrice}`;
+    const renewalPrices = document.querySelectorAll('.renewal-tiers .tier-price');
+    if (renewalPrices[0]) renewalPrices[0].textContent = `₹${schoolPrice}`;
+    if (renewalPrices[1]) renewalPrices[1].textContent = `₹${quarterPrice}`;
+    if (el.btnSubmitRenewal) {
+      const selectedTier = document.querySelector('input[name="renewTier"]:checked')?.value;
+      const selectedPrice = selectedTier === '3months' ? quarterPrice : schoolPrice;
+      el.btnSubmitRenewal.textContent = `Pay & Extend Pass (₹${selectedPrice})`;
+    }
+
+    const schoolInput = document.getElementById('adminSchoolPrice');
+    const officeInput = document.getElementById('adminOfficePrice');
+    const quarterInput = document.getElementById('adminQuarterPrice');
+    if (schoolInput) schoolInput.value = school;
+    if (officeInput) officeInput.value = office;
+    if (quarterInput) quarterInput.value = quarter;
+  }
+
+  function updateAdminRiderControls() {
+    const availableCount = Object.values(state.adminConfig.availability).filter(Boolean).length;
+    const availableMetric = document.getElementById('adminMetricRiders');
+    const riderCount = document.getElementById('adminRiderCount');
+    if (availableMetric) availableMetric.textContent = availableCount;
+    if (riderCount) riderCount.textContent = `${availableCount} available`;
+
+    document.querySelectorAll('[data-rider-availability]').forEach(input => {
+      const riderId = input.dataset.riderAvailability;
+      const row = input.closest('.admin-rider-row');
+      if (row) {
+        row.classList.toggle('unavailable', !state.adminConfig.availability[riderId]);
+        const status = row.querySelector('.admin-rider-status');
+        if (status) {
+          const assigned = Object.values(state.adminConfig.assignments).includes(riderId);
+          status.textContent = !state.adminConfig.availability[riderId] ? 'Off duty' : (assigned ? 'On route' : 'Available');
+        }
+      }
+      input.checked = Boolean(state.adminConfig.availability[riderId]);
+    });
+
+    document.querySelectorAll('.admin-assignee').forEach(select => {
+      const selectedRider = state.adminConfig.assignments[select.dataset.orderRider];
+      Array.from(select.options).forEach(option => {
+        option.disabled = !state.adminConfig.availability[option.value] && option.value !== selectedRider;
+      });
+      if (selectedRider) select.value = selectedRider;
+    });
+  }
+
+  function updateSignupServiceAreas() {
+    const signupArea = el.signupArea;
+    if (!signupArea) return;
+    Array.from(signupArea.options).forEach(option => {
+      if (Object.hasOwn(state.adminConfig.zones, option.value)) {
+        option.disabled = !state.adminConfig.zones[option.value];
+      }
+    });
+    const selectedOption = signupArea.options[signupArea.selectedIndex];
+    if (selectedOption?.disabled) {
+      const availableOption = Array.from(signupArea.options).find(option => !option.disabled);
+      if (availableOption) signupArea.value = availableOption.value;
+    }
+  }
+
+  function initializeAdminPanel() {
+    applyAdminAssignments();
+    renderAdminPricing();
+
+    document.querySelectorAll('.admin-assignee').forEach(select => {
+      const orderId = select.dataset.orderRider;
+      select.value = state.adminConfig.assignments[orderId] || select.value;
+      select.addEventListener('change', () => {
+        state.adminConfig.assignments[orderId] = select.value;
+        applyAdminAssignments();
+        updateAdminRiderControls();
+        persistAdminConfig();
+        if (orderId === state.currentRecipient) renderView();
+        showToast(`${select.options[select.selectedIndex].text} assigned to ${orderId === 'aarav' ? 'Aarav' : orderId === 'vikram' ? 'Vikram' : 'Ananya'}.`);
+      });
+    });
+
+    document.querySelectorAll('.admin-stage-select').forEach(select => {
+      const orderId = select.dataset.orderStage;
+      select.value = state.adminConfig.stages[orderId] || select.value;
+      select.addEventListener('change', () => {
+        state.adminConfig.stages[orderId] = select.value;
+        if (orderId === state.currentRecipient) {
+          state.currentStage = select.value;
+          renderView();
+        }
+        persistAdminConfig();
+        showToast(`Delivery stage updated to ${select.options[select.selectedIndex].text}.`);
+      });
+    });
+
+    document.querySelectorAll('[data-rider-availability]').forEach(input => {
+      input.addEventListener('change', () => {
+        state.adminConfig.availability[input.dataset.riderAvailability] = input.checked;
+        updateAdminRiderControls();
+        persistAdminConfig();
+        showToast(`${input.closest('.admin-rider-row').querySelector('.admin-rider-info strong').textContent} is ${input.checked ? 'available' : 'off duty'}.`);
+      });
+    });
+
+    document.getElementById('adminPricingForm')?.addEventListener('submit', event => {
+      event.preventDefault();
+      state.adminConfig.prices = {
+        school: Number(document.getElementById('adminSchoolPrice').value),
+        office: Number(document.getElementById('adminOfficePrice').value),
+        quarter: Number(document.getElementById('adminQuarterPrice').value)
+      };
+      renderAdminPricing();
+      persistAdminConfig();
+      showToast('Plan pricing saved and customer plan prices updated.');
+    });
+
+    document.getElementById('adminResetPricing')?.addEventListener('click', () => {
+      state.adminConfig.prices = { ...defaultAdminConfig.prices };
+      renderAdminPricing();
+      persistAdminConfig();
+      showToast('Default plan pricing restored.');
+    });
+
+    document.querySelectorAll('[data-service-zone]').forEach(input => {
+      input.checked = Boolean(state.adminConfig.zones[input.dataset.serviceZone]);
+      input.addEventListener('change', () => {
+        state.adminConfig.zones[input.dataset.serviceZone] = input.checked;
+        updateSignupServiceAreas();
+        persistAdminConfig();
+        showToast(`${input.dataset.serviceZone} ${input.checked ? 'enabled' : 'paused'} for new deliveries.`);
+      });
+    });
+    updateSignupServiceAreas();
+
+    const ordersEnabled = document.getElementById('adminOrdersEnabled');
+    if (ordersEnabled) {
+      ordersEnabled.checked = state.adminConfig.acceptingOrders;
+      ordersEnabled.addEventListener('change', () => {
+        state.adminConfig.acceptingOrders = ordersEnabled.checked;
+        persistAdminConfig();
+        showToast(ordersEnabled.checked ? 'New orders are being accepted.' : 'New order intake is paused.');
+      });
+    }
+
+    document.getElementById('adminOrderSearch')?.addEventListener('input', event => {
+      const query = event.target.value.trim().toLowerCase();
+      document.querySelectorAll('#adminOrdersBody tr').forEach(row => {
+        row.hidden = !row.textContent.toLowerCase().includes(query);
+      });
+    });
+
+    document.getElementById('adminExportReport')?.addEventListener('click', () => {
+      const rows = [['Customer', 'Destination', 'Delivery window', 'Stage', 'Rider']];
+      document.querySelectorAll('#adminOrdersBody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (!cells.length) return;
+        const stage = row.querySelector('.admin-stage-select');
+        const rider = row.querySelector('.admin-assignee');
+        rows.push([
+          cells[0].querySelector('strong')?.textContent || '',
+          cells[0].querySelector('small')?.textContent || '',
+          cells[1].textContent.trim(),
+          stage?.options[stage.selectedIndex]?.text || '',
+          rider?.options[rider.selectedIndex]?.text || ''
+        ]);
+      });
+      const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n');
+      const downloadUrl = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'dabbago-delivery-report.csv';
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+      showToast('Delivery report exported.');
+    });
+
+    updateAdminRiderControls();
   }
 
   // See All Upcoming button
@@ -885,118 +1143,131 @@ document.addEventListener('DOMContentLoaded', () => {
     fillOtpBoxes(el.loginOtpInputs, '');
     el.loginOtpInputs?.[0]?.focus();
     startOtpTimer('login');
-    showToast('📱 SMS sent: Your new OTP is 4829 (Valid for 30s)');
+    showToast('SMS sent: Your new OTP is 4829 (Valid for 30s)');
   });
 
   el.btnResendSignupOtp?.addEventListener('click', () => {
     fillOtpBoxes(el.signupOtpInputs, '');
     el.signupOtpInputs?.[0]?.focus();
     startOtpTimer('signup');
-    showToast('📱 SMS sent: Your new OTP is 4829 (Valid for 30s)');
+    showToast('SMS sent: Your new OTP is 4829 (Valid for 30s)');
   });
 
   // Handle Login Form Submit (All in the same page)
-  function handleLoginSubmit() {
+  async function handleLoginSubmit() {
     const phone = (el.loginPhone?.value || '').trim();
-    if (phone.length < 10) {
-      showToast('⚠️ Please enter a valid 10-digit mobile number');
+    if (!/^[0-9]{10}$/.test(phone)) {
+      showToast('Please enter a valid 10-digit mobile number');
       el.loginPhone?.focus();
       return;
     }
 
     let enteredOtp = '';
-    el.loginOtpInputs?.forEach(inp => {
-      enteredOtp += (inp.value || '').trim();
+    el.loginOtpInputs?.forEach(input => {
+      enteredOtp += (input.value || '').trim();
     });
 
-    if (enteredOtp.length < 4) {
-      showToast('⚠️ Please enter the 4-digit OTP (e.g. 4829)');
-      const emptyBox = Array.from(el.loginOtpInputs || []).find(inp => !inp.value);
+    if (enteredOtp.length !== 4 || !/^[0-9]{4}$/.test(enteredOtp)) {
+      showToast('Enter the 4-digit demo OTP (4829).');
+      const emptyBox = Array.from(el.loginOtpInputs || []).find(input => !input.value);
       if (emptyBox) emptyBox.focus();
       return;
     }
 
-    if (!/^[0-9]{4}$/.test(enteredOtp)) {
-      showToast('⚠️ Please enter 4 numeric digits for OTP');
+    const existing = state.currentUser || {};
+    let userToSave = {
+      name: existing.phone === phone && existing.name ? existing.name : 'Priya Sharma',
+      phone,
+      area: existing.phone === phone && existing.area ? existing.area : 'Indiranagar',
+      deliveryFor: existing.deliveryFor || 'school'
+    };
+
+    if (enteredOtp !== state.activeOtp) {
+      showToast('That demo OTP is not correct. Use 4829.');
       return;
     }
 
-    // Success! Save user
-    const existing = state.currentUser || {};
-    const userToSave = {
-      name: (existing.phone === phone && existing.name) ? existing.name : 'Priya Sharma',
-      phone: phone,
-      area: (existing.phone === phone && existing.area) ? existing.area : 'Indiranagar',
-      deliveryFor: existing.deliveryFor || 'school'
-    };
+    let syncError = null;
+    if (supabase) {
+      try {
+        userToSave = await saveSupabaseProfile(userToSave);
+      } catch (error) {
+        syncError = error;
+      }
+    }
 
     state.currentUser = userToSave;
     try {
       localStorage.setItem('dabbago_user', JSON.stringify(userToSave));
-    } catch (e) {}
+    } catch (error) {}
 
     renderView();
     closeAuthView();
     const firstName = (userToSave.name || 'Friend').split(' ')[0] || 'Friend';
-    showToast(`🎉 Verified! Welcome back to DabbaGo, ${firstName}.`);
+    showToast(syncError
+      ? `Signed in locally, but Supabase sync failed: ${syncError.message}`
+      : `Verified! Welcome back to DabbaGo, ${firstName}.`);
   }
 
-  el.btnSubmitLogin?.addEventListener('click', (e) => {
-    e.preventDefault();
+  el.btnSubmitLogin?.addEventListener('click', (event) => {
+    event.preventDefault();
     handleLoginSubmit();
   });
-  el.formLogin?.addEventListener('submit', (e) => {
-    e.preventDefault();
+  el.formLogin?.addEventListener('submit', (event) => {
+    event.preventDefault();
     handleLoginSubmit();
   });
 
   // Handle Signup Form Submit (All in the same page)
-  function handleSignupSubmit() {
+  async function handleSignupSubmit() {
     const name = (el.signupName?.value || '').trim();
     const phone = (el.signupPhone?.value || '').trim();
     const area = el.signupArea?.value || 'Indiranagar';
     const deliveryFor = document.querySelector('input[name="signupDeliveryFor"]:checked')?.value || 'school';
 
     if (!name) {
-      showToast('⚠️ Please enter your full name');
+      showToast('Please enter your full name');
       el.signupName?.focus();
       return;
     }
-    if (phone.length < 10) {
-      showToast('⚠️ Please enter a valid 10-digit mobile number');
+    if (!/^[0-9]{10}$/.test(phone)) {
+      showToast('Please enter a valid 10-digit mobile number');
       el.signupPhone?.focus();
       return;
     }
 
     let enteredOtp = '';
-    el.signupOtpInputs?.forEach(inp => {
-      enteredOtp += (inp.value || '').trim();
+    el.signupOtpInputs?.forEach(input => {
+      enteredOtp += (input.value || '').trim();
     });
 
-    if (enteredOtp.length < 4) {
-      showToast('⚠️ Please enter the 4-digit OTP (e.g. 4829)');
-      const emptyBox = Array.from(el.signupOtpInputs || []).find(inp => !inp.value);
+    const signupProfile = { name, phone, area, deliveryFor };
+    if (enteredOtp.length !== 4 || !/^[0-9]{4}$/.test(enteredOtp)) {
+      showToast('Enter the 4-digit demo OTP (4829).');
+      const emptyBox = Array.from(el.signupOtpInputs || []).find(input => !input.value);
       if (emptyBox) emptyBox.focus();
       return;
     }
 
-    if (!/^[0-9]{4}$/.test(enteredOtp)) {
-      showToast('⚠️ Please enter 4 numeric digits for OTP');
+    let userToSave = signupProfile;
+    if (enteredOtp !== state.activeOtp) {
+      showToast('That demo OTP is not correct. Use 4829.');
       return;
     }
 
-    // Success! Save user
-    const userToSave = {
-      name: name,
-      phone: phone,
-      area: area,
-      deliveryFor: deliveryFor
-    };
+    let syncError = null;
+    if (supabase) {
+      try {
+        userToSave = await saveSupabaseProfile(signupProfile);
+      } catch (error) {
+        syncError = error;
+      }
+    }
 
     state.currentUser = userToSave;
     try {
       localStorage.setItem('dabbago_user', JSON.stringify(userToSave));
-    } catch (e) {}
+    } catch (error) {}
 
     if (userToSave.deliveryFor === 'office') {
       state.currentRecipient = 'vikram';
@@ -1007,29 +1278,101 @@ document.addEventListener('DOMContentLoaded', () => {
     renderView();
     closeAuthView();
     const firstName = name.split(' ')[0] || 'Friend';
-    showToast(`🎉 Verified! Welcome to DabbaGo, ${firstName}.`);
+    showToast(syncError
+      ? `Signed up locally, but Supabase sync failed: ${syncError.message}`
+      : `Verified! Welcome to DabbaGo, ${firstName}.`);
   }
 
-  el.btnSubmitSignup?.addEventListener('click', (e) => {
-    e.preventDefault();
+  el.btnSubmitSignup?.addEventListener('click', (event) => {
+    event.preventDefault();
     handleSignupSubmit();
   });
-  el.formSignup?.addEventListener('submit', (e) => {
-    e.preventDefault();
+  el.formSignup?.addEventListener('submit', (event) => {
+    event.preventDefault();
     handleSignupSubmit();
   });
+
+  async function getSupabaseUser() {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (sessionData.session?.user) return sessionData.session.user;
+
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error) throw error;
+    if (!data.user) throw new Error('Could not create a database session.');
+    return data.user;
+  }
+
+  async function saveSupabaseProfile(profile) {
+    const authUser = await getSupabaseUser();
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: authUser.id,
+        full_name: profile.name,
+        phone: `+91${profile.phone}`,
+        area: profile.area,
+        delivery_for: profile.deliveryFor
+      }, { onConflict: 'id' })
+      .select('full_name, phone, area, delivery_for')
+      .single();
+    if (error) throw error;
+
+    return {
+      name: data.full_name,
+      phone: data.phone.replace(/\D/g, '').slice(-10),
+      area: data.area,
+      deliveryFor: data.delivery_for
+    };
+  }
+
+  async function loadSupabaseProfile(fallbackProfile) {
+    const authUser = await getSupabaseUser();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('full_name, phone, area, delivery_for')
+      .eq('id', authUser.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) {
+      return {
+        name: data.full_name,
+        phone: data.phone.replace(/\D/g, '').slice(-10),
+        area: data.area,
+        deliveryFor: data.delivery_for
+      };
+    }
+
+    return saveSupabaseProfile(fallbackProfile);
+  }
+
+  async function restoreSupabaseProfile() {
+    if (!state.currentUser) return;
+    try {
+      state.currentUser = await loadSupabaseProfile(state.currentUser);
+      localStorage.setItem('dabbago_user', JSON.stringify(state.currentUser));
+      renderView();
+    } catch (error) {
+      showToast(`Supabase profile could not load: ${error.message}`);
+    }
+  }
 
   // Logout User
   el.btnLogoutUser?.addEventListener('click', () => {
     state.currentUser = null;
     try {
       localStorage.removeItem('dabbago_user');
-    } catch (e) {}
+    } catch (error) {}
     renderView();
     openAuthView('login');
     showToast('Logged out successfully.');
   });
 
   // Initial render
+  state.currentStage = state.adminConfig.stages.aarav || state.currentStage;
+  initializeAdminPanel();
   renderView();
+  if (supabase) {
+    restoreSupabaseProfile();
+  }
 });

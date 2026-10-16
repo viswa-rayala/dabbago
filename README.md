@@ -113,3 +113,12 @@ npm run preview
 
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).
+
+### Configure Supabase
+
+1. Create a Supabase project and enable **Anonymous Sign-ins** under **Authentication → Sign In / Providers**. No phone provider or SMS service is needed.
+2. Open the Supabase SQL Editor and run [`supabase/schema.sql`](supabase/schema.sql).
+3. Copy the project's URL and publishable (or anon) key from **Project Settings → API**.
+4. Copy `.env.example` to `.env.local`, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, then restart the Vite server.
+
+The app retains its original local demo sign-in (demo code `4829`); this code is not sent or verified by Supabase. After demo sign-in, the app uses a persistent anonymous Supabase session to store the profile in the RLS-protected `profiles` table. This is suitable for a demo, not verified accounts: profiles belong to that browser session and cannot be securely recovered on another device. Never put a Supabase service-role key in browser code. Without the two Vite variables, profile storage remains local only.

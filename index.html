@@ -482,6 +482,114 @@
             </div>
           </section>
 
+          <!-- ADMIN: OPERATIONS CONSOLE -->
+          <section class="tab-page admin-page" id="tabAdmin">
+            <header class="admin-heading">
+              <div>
+                <span class="admin-eyebrow">DABBAGO OPERATIONS</span>
+                <h1 class="sub-title">Admin console</h1>
+                <p class="sub-subtitle">Live dispatch, fleet and subscription controls</p>
+              </div>
+              <span class="admin-live-indicator"><i></i> Live</span>
+            </header>
+
+            <section class="admin-metrics" aria-label="Today's operations">
+              <article class="admin-metric"><span>Deliveries</span><strong id="adminMetricDeliveries">48</strong><small>Today's route plan</small></article>
+              <article class="admin-metric"><span>In transit</span><strong id="adminMetricTransit">12</strong><small>Across all zones</small></article>
+              <article class="admin-metric"><span>Available riders</span><strong id="adminMetricRiders">6</strong><small>Ready for dispatch</small></article>
+              <article class="admin-metric"><span>On-time rate</span><strong>96.4%</strong><small>Last 7 days</small></article>
+            </section>
+
+            <section class="admin-section" aria-labelledby="adminDispatchTitle">
+              <div class="admin-section-heading">
+                <div><span class="admin-kicker">DISPATCH</span><h2 id="adminDispatchTitle">Today's deliveries</h2></div>
+                <label class="admin-search"><span aria-hidden="true">⌕</span><input id="adminOrderSearch" type="search" placeholder="Find customer or route" aria-label="Find customer or route"></label>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead><tr><th>Customer / destination</th><th>Window</th><th>Stage</th><th>Assign rider</th></tr></thead>
+                  <tbody id="adminOrdersBody">
+                    <tr data-order="aarav">
+                      <td><strong>Aarav Sharma</strong><small>Green Valley School · #GV-402</small></td>
+                      <td>12:10 PM</td>
+                      <td><select class="admin-stage-select" data-order-stage="aarav" aria-label="Aarav delivery stage"><option value="scheduled">Scheduled</option><option value="transit" selected>In transit</option><option value="delivered">Delivered</option></select></td>
+                      <td><select class="admin-assignee" data-order-rider="aarav" aria-label="Assign rider to Aarav"><option value="rahul">Rahul Nair</option><option value="suresh">Suresh Patel</option><option value="meera">Meera Das</option></select></td>
+                    </tr>
+                    <tr data-order="vikram">
+                      <td><strong>Vikram Rao</strong><small>Mindspace Cyber Towers · #TC-108</small></td>
+                      <td>12:45 PM</td>
+                      <td><select class="admin-stage-select" data-order-stage="vikram" aria-label="Vikram delivery stage"><option value="scheduled">Scheduled</option><option value="transit" selected>In transit</option><option value="delivered">Delivered</option></select></td>
+                      <td><select class="admin-assignee" data-order-rider="vikram" aria-label="Assign rider to Vikram"><option value="rahul">Rahul Nair</option><option value="suresh" selected>Suresh Patel</option><option value="meera">Meera Das</option></select></td>
+                    </tr>
+                    <tr data-order="ananya">
+                      <td><strong>Ananya Iyer</strong><small>Indiranagar · #IN-211</small></td>
+                      <td>1:00 PM</td>
+                      <td><select class="admin-stage-select" data-order-stage="ananya" aria-label="Ananya delivery stage"><option value="scheduled" selected>Scheduled</option><option value="transit">In transit</option><option value="delivered">Delivered</option></select></td>
+                      <td><select class="admin-assignee" data-order-rider="ananya" aria-label="Assign rider to Ananya"><option value="rahul" selected>Rahul Nair</option><option value="suresh">Suresh Patel</option><option value="meera">Meera Das</option></select></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="admin-footnote">Changes update the demo dispatch board and recipient tracking instantly.</p>
+            </section>
+
+            <section class="admin-section" aria-labelledby="adminRidersTitle">
+              <div class="admin-section-heading">
+                <div><span class="admin-kicker">FLEET</span><h2 id="adminRidersTitle">Rider roster</h2></div>
+                <span class="admin-count" id="adminRiderCount">3 riders</span>
+              </div>
+              <div class="admin-rider-list">
+                <article class="admin-rider-row" data-rider="rahul">
+                  <div class="admin-rider-avatar">RN</div><div class="admin-rider-info"><strong>Rahul Nair</strong><span>4.95 rating · Electric · Indiranagar</span></div>
+                  <span class="admin-rider-status">On route</span><label class="admin-toggle" title="Toggle Rahul's availability"><input type="checkbox" data-rider-availability="rahul" checked><span></span></label>
+                </article>
+                <article class="admin-rider-row" data-rider="suresh">
+                  <div class="admin-rider-avatar amber">SP</div><div class="admin-rider-info"><strong>Suresh Patel</strong><span>4.98 rating · Ather 450X · Whitefield</span></div>
+                  <span class="admin-rider-status">On route</span><label class="admin-toggle" title="Toggle Suresh's availability"><input type="checkbox" data-rider-availability="suresh" checked><span></span></label>
+                </article>
+                <article class="admin-rider-row" data-rider="meera">
+                  <div class="admin-rider-avatar coral">MD</div><div class="admin-rider-info"><strong>Meera Das</strong><span>4.91 rating · Electric · Koramangala</span></div>
+                  <span class="admin-rider-status">Available</span><label class="admin-toggle" title="Toggle Meera's availability"><input type="checkbox" data-rider-availability="meera" checked><span></span></label>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-section" aria-labelledby="adminPricingTitle">
+              <div class="admin-section-heading">
+                <div><span class="admin-kicker">REVENUE</span><h2 id="adminPricingTitle">Plan pricing</h2></div>
+                <button class="admin-text-button" id="adminResetPricing" type="button">Reset defaults</button>
+              </div>
+              <form class="admin-pricing-form" id="adminPricingForm">
+                <label class="admin-price-field"><span>School daily · monthly</span><span class="admin-rupee-input">₹<input id="adminSchoolPrice" type="number" min="1" step="1" value="2499" required></span></label>
+                <label class="admin-price-field"><span>Office express · monthly</span><span class="admin-rupee-input">₹<input id="adminOfficePrice" type="number" min="1" step="1" value="2799" required></span></label>
+                <label class="admin-price-field"><span>Quarterly pass · 3 months</span><span class="admin-rupee-input">₹<input id="adminQuarterPrice" type="number" min="1" step="1" value="6399" required></span></label>
+                <button class="admin-save-button" type="submit">Save pricing</button>
+              </form>
+            </section>
+
+            <section class="admin-section" aria-labelledby="adminZonesTitle">
+              <div class="admin-section-heading">
+                <div><span class="admin-kicker">COVERAGE</span><h2 id="adminZonesTitle">Service zones</h2></div>
+                <span class="admin-count">7 areas</span>
+              </div>
+              <div class="admin-zones-list">
+                <label><span><strong>Indiranagar</strong><small>12 active subscriptions</small></span><input type="checkbox" data-service-zone="Indiranagar" checked></label>
+                <label><span><strong>Koramangala</strong><small>9 active subscriptions</small></span><input type="checkbox" data-service-zone="Koramangala" checked></label>
+                <label><span><strong>HSR Layout</strong><small>6 active subscriptions</small></span><input type="checkbox" data-service-zone="HSR Layout" checked></label>
+                <label><span><strong>Whitefield / ITPL</strong><small>15 active subscriptions</small></span><input type="checkbox" data-service-zone="Whitefield" checked></label>
+                <label><span><strong>Jayanagar / JP Nagar</strong><small>7 active subscriptions</small></span><input type="checkbox" data-service-zone="Jayanagar" checked></label>
+                <label><span><strong>Bellandur / EcoSpace</strong><small>8 active subscriptions</small></span><input type="checkbox" data-service-zone="Bellandur" checked></label>
+                <label><span><strong>Electronic City</strong><small>5 active subscriptions</small></span><input type="checkbox" data-service-zone="Electronic City" checked></label>
+              </div>
+            </section>
+
+            <section class="admin-quick-actions" aria-label="Operations actions">
+              <div><span class="admin-kicker">OPERATIONS</span><strong>Service controls</strong></div>
+              <label class="admin-service-toggle"><span><strong>Accept new orders</strong><small>Pause checkout across all zones</small></span><input id="adminOrdersEnabled" type="checkbox" checked></label>
+              <button type="button" class="admin-export-button" id="adminExportReport">Export today's delivery report</button>
+            </section>
+          </section>
+
           <!-- TAB 3: HISTORY -->
           <section class="tab-page" id="tabHistory">
             <header class="sub-header">
@@ -620,6 +728,15 @@
               </svg>
             </div>
             <span class="nav-label">History</span>
+          </button>
+
+          <button class="nav-item" data-tab="tabAdmin" id="navAdmin" aria-label="Admin console">
+            <div class="nav-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <span class="nav-label">Admin</span>
           </button>
 
           <button class="nav-item" data-tab="tabProfile" id="navProfile">
